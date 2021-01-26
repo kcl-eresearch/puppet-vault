@@ -38,18 +38,17 @@ Puppet::Functions.create_function(:vault_lookup) do
     end
 
     if key.nil?
-        Puppet::Pops::Types::PSensitiveType::Sensitive.new(data)
+      Puppet::Pops::Types::PSensitiveType::Sensitive.new(data)
     else
-        Puppet::Pops::Types::PSensitiveType::Sensitive.new(data[key])
+      Puppet::Pops::Types::PSensitiveType::Sensitive.new(data[key])
     end
-
   end
 
   private
 
   def create_ssl_context(verify_ssl)
     ssl_provider = Puppet::SSL::SSLProvider.new
-    default_ssl_context = ssl_provider.load_context()
+    default_ssl_context = ssl_provider.load_context
 
     ssl_context = Puppet::SSL::SSLContext.new(
       store: default_ssl_context.store,
@@ -59,7 +58,7 @@ Puppet::Functions.create_function(:vault_lookup) do
       client_cert: default_ssl_context.client_cert,
       client_chain: default_ssl_context.client_chain,
       revocation: default_ssl_context.revocation,
-      verify_peer: verify_ssl
+      verify_peer: verify_ssl,
     )
 
     ssl_context

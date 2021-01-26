@@ -25,11 +25,11 @@ Puppet::Functions.create_function(:vault_lookup) do
     ssl_context = create_ssl_context(verify_ssl)
     connection = Puppet::Network::HttpPool.connection(uri.host, uri.port, use_ssl: use_ssl, ssl_context: ssl_context)
 
-    if local_token.nil?
-      token = get_auth_token(connection)
-    else
-      token = get_local_auth_token(local_token)
-    end
+    token = if local_token.nil?
+              get_auth_token(connection)
+            else
+              get_local_auth_token(local_token)
+            end
 
     secret_response = connection.get("/v1/#{path}", 'X-Vault-Token' => token)
     unless secret_response.is_a?(Net::HTTPOK)

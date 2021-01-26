@@ -4,9 +4,10 @@ Puppet::Functions.create_function(:vault_lookup) do
     optional_param 'String', :key
     optional_param 'String', :vault_url
     optional_param 'Boolean', :verify_ssl
+    optional_param 'String', :local_token
   end
 
-  def vault_lookup(path, key = nil, vault_url = nil, verify_ssl = true)
+  def vault_lookup(path, key = nil, vault_url = nil, verify_ssl = true, local_token = nil)
     if vault_url.nil?
       Puppet.debug 'No Vault address was set on function, defaulting to value from VAULT_ADDR env value'
       vault_url = ENV['VAULT_ADDR']
@@ -23,7 +24,12 @@ Puppet::Functions.create_function(:vault_lookup) do
     use_ssl = uri.scheme == 'https'
     ssl_context = create_ssl_context(verify_ssl)
     connection = Puppet::Network::HttpPool.connection(uri.host, uri.port, use_ssl: use_ssl, ssl_context: ssl_context)
-    token = get_auth_token(connection)
+
+    if local_token.nil?
+      token = get_auth_token(connection)
+    else
+      token = get_local_auth_token(local_token)
+    end
 
     secret_response = connection.get("/v1/#{path}", 'X-Vault-Token' => token)
     unless secret_response.is_a?(Net::HTTPOK)
@@ -75,6 +81,18 @@ Puppet::Functions.create_function(:vault_lookup) do
       token = JSON.parse(response.body)['auth']['client_token']
     rescue StandardError
       raise Puppet::Error, 'Unable to parse client_token from vault response'
+    end
+
+    raise Puppet::Error, 'No client_token found' if token.nil?
+
+    token
+  end
+
+  def get_local_auth_token(path)
+    begin
+      token = Puppet::FileSystem.read(path)
+    rescue
+      raise Puppet::Error, "Unable to read #{path}"
     end
 
     raise Puppet::Error, 'No client_token found' if token.nil?

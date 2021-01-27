@@ -20,4 +20,11 @@ class vault::server
       ensure => 'running',
       enable => true;
   }
+
+  # Add role to the MOTD.
+  concat::fragment { 'motd_role_vault':
+    target  => '/etc/motd',
+    order   => 20,
+    content => '    -- Vault server\n'
+  }
 }

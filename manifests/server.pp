@@ -25,6 +25,6 @@ class vault::server
   concat::fragment { 'motd_role_vault':
     target  => '/etc/motd',
     order   => 20,
-    content => '    -- Vault server\n'
+    content => '    -- Vault server'
   }
 }

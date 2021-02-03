@@ -7,7 +7,7 @@ Puppet::Functions.create_function(:vault_lookup) do
     optional_param 'String', :local_token
   end
 
-  def vault_lookup(path, key = nil, vault_url = nil, verify_ssl = true, local_token = nil)
+  def vault_lookup(path, key = nil, vault_url = nil, verify_ssl = false, local_token = nil)
     if vault_url.nil?
       Puppet.debug 'No Vault address was set on function, defaulting to value from VAULT_ADDR env value'
       vault_url = ENV['VAULT_ADDR']

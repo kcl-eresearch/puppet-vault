@@ -12,11 +12,11 @@ Puppet::Functions.create_function(:vault_lookup) do
     retval = data['data']
 
     if retval.nil?
-      raise Puppet::Error, "Nothing found in Vault at location #{store}/#{path}"
+      raise Puppet::Error, "Nothing found in Vault at location #{path}"
     end
 
     if key && !key.empty? && retval[key].nil?
-      raise Puppet::Error, "Key #{key} not found in Vault at location #{store}/#{path}"
+      raise Puppet::Error, "Key #{key} not found in Vault at location #{path}"
     end
 
     return Puppet::Pops::Types::PSensitiveType::Sensitive.new(retval) if key.nil? || key.empty?

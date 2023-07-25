@@ -44,6 +44,25 @@ module Vault
       data
     end
 
+    def get_if_exists(path)
+      response = @client.get(encode_path(path), headers: headers)
+      unless response.success?
+        if response.code == 404
+          return nil
+        end
+        message = "Received #{response.code} response code from vault for get at path #{path} (#{response.reason})"
+        raise Puppet::Error, message
+      end
+
+      begin
+        data = JSON.parse(response.body)
+      rescue StandardError
+        raise Puppet::Error, 'Error parsing json secret data from vault response'
+      end
+
+      data
+    end
+
     def post(path, data = '')
       data = JSON.generate(data) unless data.is_a?(String)
       raise ArgumentError, "'post' requires a string 'data' argument" unless data.is_a?(String)

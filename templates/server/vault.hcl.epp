@@ -1,0 +1,38 @@
+<%- |
+  Array[Hash] $listeners,
+  Hash $storage_config,
+  Boolean $ui_enabled,
+  Boolean $disable_mlock,
+| -%>
+
+# Puppet managed File
+ui = <%= $ui_enabled %>
+disable_mlock = <%= $disable_mlock %>
+
+<% $listeners.each |$listener| { -%>
+listener "<%= $listener['type'] %>" {
+  address     = "<%= $listener['address'] %>"
+  tls_disable = <%= $listener['tls_disable'] ? {
+    true    => '1',
+    default => '0'
+  } %>
+  <% if !$listener['tls_disable'] { -%>
+  tls_cert_file      = "<%= $listener['tls_cert_file'] %>"
+  tls_key_file       = "<%= $listener['tls_key_file'] %>"
+  tls_min_version    = "<%= $listener['tls_min_version'] %>"
+  tls_max_version    = "<%= $listener['tls_max_version'] %>"
+  <% if $listener['tls_client_ca_file'] { -%>
+  tls_client_ca_file = "<%= $listener['tls_client_ca_file'] %>"
+  <% } -%>
+  tls_cipher_suites  = "<%= $listener['tls_cipher_suites'].join(',') %>"
+  <% } -%>
+}
+<% } -%>
+
+<% $storage_config.each |$backend, $config| { -%>
+storage "<%= $backend %>" {
+  <% $config.each |$key, $value| { -%>
+  <%= $key %> = "<%= $value %>"
+  <% } -%>
+}
+<% } -%>

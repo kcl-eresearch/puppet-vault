@@ -1,0 +1,7 @@
+<%- | Stdlib::Fqdn $vault_host,
+      Stdlib::Port $vault_port,
+| -%>
+---
+# Puppet managed file
+vault_host: "<%= $vault_host %>"
+vault_host: <%= $vault_port %>

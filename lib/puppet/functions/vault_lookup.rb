@@ -5,10 +5,12 @@ Puppet::Functions.create_function(:vault_lookup) do
   dispatch :vault_lookup do
     param 'String', :path
     optional_param 'String', :key
+    optional_param 'String', :vault_url
   end
 
-  def vault_lookup(path, key = nil)
-    data = Vault::Client.new.get("/v1/#{path}")
+  def vault_lookup(path, key = nil, vault_url = 'https://vault.example.com:8200')
+    client = Vault::Client.new(vault_url)
+    data = client.get("/v1/#{path}")
     retval = data['data']
 
     if retval.nil?

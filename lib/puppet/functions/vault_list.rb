@@ -4,10 +4,12 @@ require File.dirname(__FILE__) + '/../common/vault'
 Puppet::Functions.create_function(:vault_list) do
   dispatch :vault_list do
     param 'String', :path
+    optional_param 'String', :vault_url
   end
 
-  def vault_list(path)
-    data = Vault::Client.new.get("/v1/#{path}?list=true")
+  def vault_list(path, vault_url = 'https://vault.example.com:8200')
+    client = Vault::Client.new(vault_url)
+    data = client.get("/v1/#{path}?list=true")
     retval = data['data']
 
     if retval.nil?

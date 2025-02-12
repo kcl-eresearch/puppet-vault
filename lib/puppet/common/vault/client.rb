@@ -4,7 +4,8 @@ module Vault
   # Vault client library.
   #
   class Client
-    def initialize
+    def initialize(url = 'https://vault.example.com:8200')
+      @uri = url
       @client = Puppet.runtime[:http]
       @token = ''
       @token = auth_token
@@ -12,7 +13,7 @@ module Vault
 
     def encode_path(path)
       raise ArgumentError, "'encode_path' requires a string 'path' argument" unless path.is_a?(String)
-      URI('https://vault.example.com:8200' + path)
+      URI.join(@uri, path)
     end
 
     def headers

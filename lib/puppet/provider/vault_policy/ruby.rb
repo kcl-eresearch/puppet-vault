@@ -4,20 +4,26 @@ Puppet::Type.type(:vault_policy).provide(:ruby, parent: Puppet::Provider::Vault)
   desc 'Manage Vault policies.'
 
   def self.instances
-    client = ::Vault::Client.new
+    # Use the local FQDN as the default vault server
+    vault_server = "https://#{Facter.value('fqdn')}:8200"
 
-    # Get all Vault groups.
     resources = []
-    policies = vault_caller('policy list').split("\n")
-    policies.each do |pol|
-      polcontent = client.get_policy(pol)
-      resources.push(
-        new(
-          name: pol,
-          ensure: :present,
-          content: polcontent,
-        ),
-      )
+    begin
+      client = ::Vault::Client.new(vault_server)
+      policies = client.get('/v1/sys/policies/acl?list=true')['data']['keys']
+      policies.each do |pol|
+        polcontent = client.get_policy(pol)
+        resources.push(
+          new(
+            name: pol,
+            ensure: :present,
+            content: polcontent,
+          ),
+        )
+      end
+    rescue StandardError => e
+      Puppet.warning("Failed to get vault policies: #{e.message}")
+      resources
     end
     resources
   end
@@ -31,15 +37,16 @@ Puppet::Type.type(:vault_policy).provide(:ruby, parent: Puppet::Provider::Vault)
   end
 
   def create
-    client = ::Vault::Client.new
+    vault_server = "https://#{Facter.value('fqdn')}:8200"
+    client = ::Vault::Client.new(vault_server)
     client.create_policy(@resource[:name], @resource[:content])
     @property_hash[:ensure] = :present
   end
 
   def destroy
-    fqdn = Facter.value('fqdn')
-    client = ::Vault::Client.new
-    client.remove_policy(fqdn, @resource[:name])
+    vault_server = "https://#{Facter.value('fqdn')}:8200"
+    client = ::Vault::Client.new(vault_server)
+    client.delete_policy(@resource[:name])
     @property_hash[:ensure] = :absent
   end
 
@@ -53,6 +60,5 @@ Puppet::Type.type(:vault_policy).provide(:ruby, parent: Puppet::Provider::Vault)
     create
     @property_hash[:content] = value
   end
-
   alias_method :content=, :update_content
 end

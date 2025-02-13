@@ -1,4 +1,3 @@
-
 require File.dirname(__FILE__) + '/../common/vault'
 
 Puppet::Functions.create_function(:vault_list) do
@@ -7,7 +6,8 @@ Puppet::Functions.create_function(:vault_list) do
     optional_param 'String', :vault_url
   end
 
-  def vault_list(path, vault_url = 'https://vault.example.com:8200')
+  def vault_list(path, vault_url = nil)
+    vault_url ||= call_function('lookup', 'vault::url')['value']
     client = Vault::Client.new(vault_url)
     data = client.get("/v1/#{path}?list=true")
     retval = data['data']

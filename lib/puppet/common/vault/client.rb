@@ -4,8 +4,10 @@ module Vault
   # Vault client library.
   #
   class Client
-    def initialize(url = 'https://vault.example.com:8200')
-      @uri = url
+
+    def initialize(url = nil)
+      # fall back to using the local FQDN if no url is provided
+      @uri = url || "https://vault.#{Facter.value('networking.domain')}:8200"
       @client = Puppet.runtime[:http]
       @token = ''
       @token = auth_token

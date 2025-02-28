@@ -9,7 +9,6 @@ Puppet::Functions.create_function(:vault_lookup) do
   end
 
   def vault_lookup(path, key = nil, vault_url = nil)
-    vault_url ||= call_function('lookup', 'vault::url')['value']
     client = Vault::Client.new(vault_url)
     data = client.get("/v1/#{path}")
     retval = data['data']

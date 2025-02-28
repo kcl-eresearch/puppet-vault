@@ -9,7 +9,6 @@ Puppet::Functions.create_function(:vault_lookup_if_exists) do
   end
 
   def vault_lookup_if_exists(path, key = nil, vault_url = nil)
-    vault_url ||= call_function('lookup', 'vault::url')['value']
     client = Vault::Client.new(vault_url)
     data = client.get_if_exists("/v1/#{path}")
 

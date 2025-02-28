@@ -9,7 +9,6 @@ Puppet::Functions.create_function(:vault_list_v2) do
   end
 
   def vault_list_v2(store, path, vault_url = nil)
-    vault_url ||= call_function('lookup', 'vault::url')['value']
     data = Vault::Client.new(vault_url).get("/v1/#{store}/metadata/#{path}?list=true")
     retval = data['data']
 

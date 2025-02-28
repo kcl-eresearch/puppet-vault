@@ -9,7 +9,6 @@ Puppet::Functions.create_function(:ensure_vault_roles) do
   end
 
   def ensure_vault_roles(fqdn, roles, vault_url = nil)
-    vault_url ||= call_function('lookup', 'vault::url')['value']
     client = Vault::Client.new(vault_url)
     client.entity_add_policies(fqdn, roles)
   end

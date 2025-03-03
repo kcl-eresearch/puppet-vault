@@ -5,12 +5,15 @@ module Vault
   #
   class Client
 
-    def initialize(url = nil)
+    def initialize(url = nil, mount = '/v1/auth/cert/login')
       # fall back to using the local FQDN if no url is provided
       @uri = url || "https://vault.#{Facter.value('networking.domain')}:8200"
+      Puppet.debug("Vault URL is: #{url}")
+      Puppet.debug("Mount is #{mount}")
+
       @client = Puppet.runtime[:http]
       @token = ''
-      @token = auth_token
+      @token = auth_token(mount)
     end
 
     def encode_path(path)
@@ -157,8 +160,8 @@ module Vault
 
     private
 
-    def auth_token
-      response = post('/v1/auth/cert/login')
+    def auth_token(mount = '/v1/auth/cert/login')
+      response = post(mount)
       token = response['auth']['client_token']
 
       raise Puppet::Error, 'No client_token found' if token.nil?

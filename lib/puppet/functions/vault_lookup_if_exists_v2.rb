@@ -7,10 +7,11 @@ Puppet::Functions.create_function(:vault_lookup_if_exists_v2) do
     param 'String', :path
     optional_param 'String', :key
     optional_param 'String', :vault_url
+    optional_param 'String', :mount
   end
 
-  def vault_lookup_if_exists_v2(store, path, key = nil, vault_url = nil)
-    client = Vault::Client.new(vault_url)
+  def vault_lookup_if_exists_v2(store, path, key = nil, vault_url = nil, mount = '/v1/auth/cert/login')
+    client = Vault::Client.new(vault_url, mount)
     data = client.get_if_exists("/v1/#{store}/data/#{path}")
     if data.nil?
       return Puppet::Pops::Types::PSensitiveType::Sensitive.new(nil)

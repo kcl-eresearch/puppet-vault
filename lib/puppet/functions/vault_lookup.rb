@@ -6,10 +6,11 @@ Puppet::Functions.create_function(:vault_lookup) do
     param 'String', :path
     optional_param 'String', :key
     optional_param 'String', :vault_url
+    optional_param 'String', :mount
   end
 
-  def vault_lookup(path, key = nil, vault_url = nil)
-    client = Vault::Client.new(vault_url)
+  def vault_lookup(path, key = nil, vault_url = nil, mount = '/v1/auth/cert/login')
+    client = Vault::Client.new(vault_url, mount)
     data = client.get("/v1/#{path}")
     retval = data['data']
 

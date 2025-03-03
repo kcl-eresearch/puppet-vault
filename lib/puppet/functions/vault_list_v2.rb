@@ -6,10 +6,11 @@ Puppet::Functions.create_function(:vault_list_v2) do
     param 'String', :store
     param 'String', :path
     optional_param 'String', :vault_url
+    optional_param 'String', :mount
   end
 
-  def vault_list_v2(store, path, vault_url = nil)
-    data = Vault::Client.new(vault_url).get("/v1/#{store}/metadata/#{path}?list=true")
+  def vault_list_v2(store, path, vault_url = nil, mount = '/v1/auth/cert/login')
+    data = Vault::Client.new(vault_url, mount).get("/v1/#{store}/metadata/#{path}?list=true")
     retval = data['data']
 
     if retval.nil?

@@ -35,7 +35,7 @@ module Vault
     end
 
     def get(path)
-      response = @client.get(encode_path(path), headers: headers)
+      response = @client.get(encode_path(path), headers: headers, options: { include_system_store: true })
       unless response.success?
         message = "Received #{response.code} response code from vault for get at path #{path} (#{response.reason})"
         raise Puppet::Error, message
@@ -51,7 +51,7 @@ module Vault
     end
 
     def get_if_exists(path)
-      response = @client.get(encode_path(path), headers: headers)
+      response = @client.get(encode_path(path), headers: headers, options: { include_system_store: true })
       unless response.success?
         if response.code == 404
           return nil
@@ -72,7 +72,7 @@ module Vault
     def post(path, data = '')
       data = JSON.generate(data) unless data.is_a?(String)
       raise ArgumentError, "'post' requires a string 'data' argument" unless data.is_a?(String)
-      response = @client.post(encode_path(path), data, headers: headers)
+      response = @client.post(encode_path(path), data, headers: headers, options: { include_system_store: true })
 
       return nil if response.code == 204
 
@@ -94,12 +94,12 @@ module Vault
       data = JSON.generate(data) unless data.is_a?(String)
       raise ArgumentError, "'post' requires a string 'data' argument" unless data.is_a?(String)
 
-      response = @client.put(encode_path(path), data, headers: headers)
+      response = @client.put(encode_path(path), data, headers: headers, options: { include_system_store: true })
       raise Puppet::Error, "Received #{response.code} response code from vault for put at path #{path} (#{response.reason})" unless response.success?
     end
 
     def delete(path)
-      response = @client.delete(encode_path(path), headers: headers)
+      response = @client.delete(encode_path(path), headers: headers, options: { include_system_store: true })
       raise Puppet::Error, "Received #{response.code} response code from vault for delete at path #{path} (#{response.reason})" unless response.success?
     end
 

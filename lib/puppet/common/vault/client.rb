@@ -78,6 +78,8 @@ module Vault
 
       unless response.success?
         message = "Received #{response.code} response code from vault for post at path #{path} (#{response.reason})"
+
+        Puppet.debug("Received Error: #{response.body} for post at path #{path}")
         raise Puppet::Error, message
       end
 

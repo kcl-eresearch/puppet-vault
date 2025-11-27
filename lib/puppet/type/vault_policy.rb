@@ -11,6 +11,15 @@ Puppet::Type.newtype(:vault_policy) do
     desc 'The name of the policy.'
   end
 
+  newparam(:namespace) do
+    desc 'The Vault namespace to use.'
+  end
+
+  newparam(:mount) do
+    desc 'The Vault auth mount path.'
+    defaultto '/v1/auth/cert/login'
+  end
+
   newproperty(:content) do
     desc 'The policy content (HCL format).'
 

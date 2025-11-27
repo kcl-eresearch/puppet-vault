@@ -5,11 +5,13 @@ module Vault
   #
   class Client
 
-    def initialize(url = nil, mount = '/v1/auth/cert/login')
+    def initialize(url = nil, mount = '/v1/auth/cert/login', namespace = nil)
       # fall back to using the local FQDN if no url is provided
       @uri = url || "https://vault.#{Facter.value('networking.domain')}:8200"
+      @namespace = namespace
       Puppet.debug("Vault URL is: #{url}")
       Puppet.debug("Mount is #{mount}")
+      Puppet.debug("Namespace is #{namespace}") if namespace
 
       @client = Puppet.runtime[:http]
       @token = ''
@@ -22,11 +24,13 @@ module Vault
     end
 
     def headers
-      if @token == ''
-        { 'Content-Type' => 'application/json' }
-      else
-        { 'X-Vault-Token' => @token + '', 'Content-Type' => 'application/json' }
-      end
+      base_headers = if @token == ''
+                       { 'Content-Type' => 'application/json' }
+                     else
+                       { 'X-Vault-Token' => @token + '', 'Content-Type' => 'application/json' }
+                     end
+      base_headers['X-Vault-Namespace'] = @namespace if @namespace
+      base_headers
     end
 
     def connection_entityid
